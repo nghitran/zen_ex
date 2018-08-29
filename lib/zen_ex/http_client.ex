@@ -7,7 +7,7 @@ defmodule ZenEx.HTTPClient do
   alias ZenEx.Collection
 
   def get("https://" <> _ = url) do
-    url |> HTTPotion.get([basic_auth: basic_auth()])
+    url |> HTTPotion.get([headers: api_headers()])
   end
   def get(endpoint) do
     endpoint |> build_url |> get
@@ -21,27 +21,27 @@ defmodule ZenEx.HTTPClient do
 
   def post(endpoint, %{} = param, decode_as) do
     build_url(endpoint)
-    |> HTTPotion.post([body: Poison.encode!(param), headers: ["Content-Type": @content_type], basic_auth: basic_auth()])
+    |> HTTPotion.post([body: Poison.encode!(param), headers: api_headers()])
     |> _build_entity(decode_as)
   end
 
   def put(endpoint, %{} = param, decode_as) do
     build_url(endpoint)
-    |> HTTPotion.put([body: Poison.encode!(param), headers: ["Content-Type": @content_type], basic_auth: basic_auth()])
+    |> HTTPotion.put([body: Poison.encode!(param), headers: api_headers()])
     |> _build_entity(decode_as)
   end
 
   def delete(endpoint, decode_as), do: delete(endpoint) |> _build_entity(decode_as)
   def delete(endpoint) do
-    build_url(endpoint) |> HTTPotion.delete([basic_auth: basic_auth()])
+    build_url(endpoint) |> HTTPotion.delete([headers: api_headers()])
   end
 
   def build_url(endpoint) do
     "https://#{Application.get_env(:zen_ex, :subdomain)}.zendesk.com#{endpoint}"
   end
 
-  def basic_auth do
-    {"#{Application.get_env(:zen_ex, :user)}/token", "#{Application.get_env(:zen_ex, :api_token)}"}
+  def api_headers() do
+    ["Content-Type": @content_type, "Authorization": "Bearer #{Application.get_env(:zen_ex, :oauth_token)}"]
   end
 
   def _build_entity(%HTTPotion.Response{} = res, [{key, [module]}]) do
