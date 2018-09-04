@@ -44,6 +44,18 @@ defmodule ZenEx.HTTPClient do
     ["Content-Type": @content_type, "Authorization": "Basic #{Application.get_env(:zen_ex, :basic_auth_token)}"]
   end
 
+  def _build_entity(%HTTPotion.Response{status_code: status_code} = res, _) when status_code != 200 do
+    error_result = res.body
+                   |> Poison.decode!(keys: :atoms)
+
+    error_message = case error_result.error do
+      %{message: message} -> message
+      message when is_binary(message) -> message
+      anything_else -> "#{inspect anything_else}"
+    end
+
+    {:error, error_message}
+  end
   def _build_entity(%HTTPotion.Response{} = res, [{key, [module]}]) do
     {entities, page} =
       res.body
