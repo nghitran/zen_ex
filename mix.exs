@@ -45,8 +45,8 @@ defmodule ZenEx.Mixfile do
       {:earmark, "~> 1.2.1", only: :dev, runtime: false},
       {:espec, "~> 1.5.1", only: :test},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
-      {:httpotion, "~> 3.0.2"},
-      {:poison, "~> 3.0"}
+      {:httpotion, "~> 3.1.0"},
+      {:poison, "~> 4.0"}
     ]
   end
 end
